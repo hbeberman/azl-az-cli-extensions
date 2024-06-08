@@ -17,7 +17,10 @@ class GlobalVariables:
         self.serial_tunnel_instance = None
         self.loading = True
         self.first_message = True
+        self.startup_sink = True
+        self.lastmsg = 0
         self.websocketstate = 0
+        self.msgcount = 0
 
 GV = GlobalVariables()
 
@@ -52,7 +55,7 @@ class SerialTunnel:
             print("Failed to grab websocket URL...")
             GV.websocketstate = 2
             return False
-        print("Grabbed websocket URL: " + self.websocket_url)
+        print(f"Grabbed websocket URL: {self.websocket_url}")
         GV.websocketstate = 1
         return True
 
@@ -62,13 +65,26 @@ class SerialTunnel:
                 GV.websocket_instance.send(self.access_token)
 
         def on_message(_, message):
+            GV.msgcount += 1
             if GV.first_message:
                 if self.new_auth_flow == "1":
+                    print("Sending Auth Flow on message!")
                     GV.websocket_instance.send(self.access_token)
                 GV.first_message = False
                 GV.loading = False
-            else:
-                print(message)
+                return
+            elif GV.startup_sink:
+                cur = time.time()
+                if GV.lastmsg == 0 or (cur - GV.lastmsg < 0.001):
+                    print(f"Sinking Startup Message #{str(GV.msgcount)} Waited {str(cur - GV.lastmsg)} seconds since previous message ...")
+                    GV.lastmsg = cur
+                    return
+                else:
+                    GV.startup_sink = False
+                    print("Startup Sink Finalized...")
+            print(f"==================== MESSAGE # {str(GV.msgcount)} ====================")
+            print(message)
+            print("=================================================================")
 
         def on_error(*_):
             pass
@@ -99,9 +115,11 @@ class SerialTunnel:
     def send(self, message):
         if GV.websocket_instance:
             if GV.first_message:
+                print("Sending first message access token")
                 GV.websocket_instance.send(self.access_token)
                 GV.first_message = False
-            GV.websocket_instance.send(message)
+            GV.websocket_instance.send(message.encode())
+
         else:
             print("No websocket connection established")
 
@@ -113,13 +131,21 @@ class SerialTunnel:
 
     def waitready(_):
         seconds = 0
-        while GV.websocketstate == 0:
-            print("Waiting for websocket to be ready (" + str(seconds) + " secs)...")
+        while (GV.websocketstate == 0 and GV.first_message == True):
+            print(f"Waiting for websocket to be ready ({str(seconds)} secs)...")
             time.sleep(5)
             seconds += 5
         if GV.websocketstate == 2:
             return False
         return True
+
+    def heartbeat(_, duration):
+        seconds = 0
+        while (seconds < duration):
+            #print(f"Heartbeat: {str(seconds)} secs")
+            GV.serial_tunnel_instance.send(f"HB{str(float(int(seconds * 100)/100))} ")
+            time.sleep(0.1)
+            seconds += 0.1
 
 def connect_serialtunnel(cmd, resource_group_name, vm_vmss_name, vmss_instanceid=None):
     print("Connecting to serial tunnel...")
@@ -128,6 +154,6 @@ def connect_serialtunnel(cmd, resource_group_name, vm_vmss_name, vmss_instanceid
 
     if not GV.serial_tunnel_instance.waitready():
         return False
-    GV.serial_tunnel_instance.send("aaaa")
-    time.sleep(10)
+
+    GV.serial_tunnel_instance.heartbeat(3000)
     GV.serial_tunnel_instance.close()
