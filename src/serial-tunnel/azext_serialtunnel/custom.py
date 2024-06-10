@@ -121,9 +121,9 @@ class SerialTunnel:
                 else:
                     GV.startup_sink = False
                     print("Startup Sink Finalized...")
-            print(f"==================== RECV # {str(GV.recvcount)} ====================")
-            print(message)
-            print("=================================================================")
+            #print(f"==================== RECV # {str(GV.recvcount)} ====================")
+            #print(message)
+            #print("=================================================================")
             GV.localsocket_connection.sendall(message.encode())
 
         def on_error(*_):
@@ -152,7 +152,7 @@ class SerialTunnel:
                     data = GV.localsocket_connection.recv(1024)
                     if not data:
                         continue
-                    self.send(data)
+                    self.send(data.decode())
                 except socket.timeout:
                     print("benign socket timeout in recv_local")
                     pass
@@ -175,9 +175,9 @@ class SerialTunnel:
                 print("Sending first message access token")
                 GV.websocket_instance.send(self.access_token)
                 GV.first_message = False
-            print(f"==================== SEND # {str(GV.sendcount)} ====================")
-            print(message)
-            print("=================================================================")
+            #print(f"==================== SEND # {str(GV.sendcount)} ====================")
+            #print(message)
+            #print("=================================================================")
             GV.websocket_instance.send(message)
         else:
             print("No websocket connection established")
@@ -203,8 +203,8 @@ class SerialTunnel:
         while (seconds < duration):
             #print(f"Heartbeat: {str(seconds)} secs")
             GV.serial_tunnel_instance.send(f"HB{str(float(int(seconds * 100)/100))} ")
-            time.sleep(0.1)
-            seconds += 0.1
+            time.sleep(10)
+            seconds += 10
 
 def connect_serialtunnel(cmd, resource_group_name, vm_vmss_name, vmss_instanceid=None):
     print("Connecting to serial tunnel...")
@@ -214,7 +214,7 @@ def connect_serialtunnel(cmd, resource_group_name, vm_vmss_name, vmss_instanceid
     if not GV.serial_tunnel_instance.waitready():
         return False
 
-    GV.serial_tunnel_instance.heartbeat(3000)
+    #GV.serial_tunnel_instance.heartbeat(3000)
     time.sleep(3000)
     GV.serial_tunnel_instance.close()
     GV.localsocket_connection.close()
