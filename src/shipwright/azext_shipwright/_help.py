@@ -13,6 +13,12 @@ helps['shipwright'] = """
 """
 
 helps['shipwright echo'] = """
-    type: group
+    type: command
     short-summary: Proof of concept that we can take parameters and do things.
+"""
+
+
+helps['shipwright create-vm'] = """
+    type: command
+    short-summary: Create an S360-compliant vm.
 """
