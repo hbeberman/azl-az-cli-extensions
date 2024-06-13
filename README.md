@@ -19,7 +19,6 @@ pev_dir=~/pev-env
 repo_root=~/datadrive/code/mariner/azl-az-cli-extensions
 
 # For Reasons, this requires a python virtual environment. Assume you want the VE stuff here:
-pev_dir=~/pev-env
 python3 -m venv "${pev_dir}"
 . "${pev_dir}/bin/activate"
 pip3 install azdev
