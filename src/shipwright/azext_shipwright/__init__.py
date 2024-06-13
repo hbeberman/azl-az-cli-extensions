@@ -3,6 +3,15 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 
+
+import sys
+
+from azure.cli.core.extension import get_extension_path
+
+sys.path.append(get_extension_path('aks-preview'))
+
+
+
 from azure.cli.core import AzCommandsLoader
 from azext_shipwright._help import helps  # pylint: disable=unused-import
 

@@ -6,6 +6,7 @@
 import subprocess
 import shlex
 
+from azure.cli.command_modules.vm.custom import create_vm
 from knack.log import get_logger
 
 logger = get_logger(__name__)
