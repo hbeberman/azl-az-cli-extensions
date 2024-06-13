@@ -121,9 +121,9 @@ class SerialTunnel:
                 else:
                     GV.startup_sink = False
                     print("Startup Sink Finalized...")
-            #print(f"==================== RECV # {str(GV.recvcount)} ====================")
-            #print(message)
-            #print("=================================================================")
+            print(f"==================== RECV # {str(GV.recvcount)} ====================")
+            print(message)
+            print("=================================================================")
             GV.localsocket_connection.sendall(message.encode())
 
         def on_error(*_):
@@ -149,12 +149,15 @@ class SerialTunnel:
             print("Entering recv local loop...")
             while True:
                 try:
-                    data = GV.localsocket_connection.recv(1024)
+                    data = GV.localsocket_connection.recv(8000)
                     if not data:
                         continue
                     self.send(data.decode())
                 except socket.timeout:
                     print("benign socket timeout in recv_local")
+                    pass
+                except:
+                    time.sleep(5)
                     pass
             print("!!!!!!!!!!!!!!! recv_local exiting now !!!!!!!!!!!!!!!!!!!!!")
 
@@ -175,9 +178,9 @@ class SerialTunnel:
                 print("Sending first message access token")
                 GV.websocket_instance.send(self.access_token)
                 GV.first_message = False
-            #print(f"==================== SEND # {str(GV.sendcount)} ====================")
-            #print(message)
-            #print("=================================================================")
+            print(f"==================== SEND # {str(GV.sendcount)} ====================")
+            print(message)
+            print("=================================================================")
             GV.websocket_instance.send(message)
         else:
             print("No websocket connection established")
