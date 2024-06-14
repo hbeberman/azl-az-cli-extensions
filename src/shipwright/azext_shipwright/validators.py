@@ -1,4 +1,4 @@
-from azure.cli.command_modules.vm._validators import process_vm_create_namespace
+from azure.cli.command_modules.vm._validators import process_vm_create_namespace, process_vmss_create_namespace
 
 
 def add_azsecpack_tags(namespace):
@@ -21,4 +21,13 @@ def azl_process_vm_create_namespace(cmd, namespace):
     print(f"Namespace: {namespace}\n")
     add_azsecpack_tags(namespace)
     process_vm_create_namespace(cmd, namespace)
+    print(f"Namespace: {namespace}\n")
+
+
+
+def azl_process_vmss_create_namespace(cmd, namespace):
+    print("Processing VM create namespace...")
+    print(f"Namespace: {namespace}\n")
+    add_azsecpack_tags(namespace)
+    process_vmss_create_namespace(cmd, namespace)
     print(f"Namespace: {namespace}\n")

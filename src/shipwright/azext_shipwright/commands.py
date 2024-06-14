@@ -12,9 +12,10 @@ from azure.cli.core.commands.arm import (
 from azext_aks_preview._client_factory import cf_managed_clusters
 from azure.cli.core.commands import DeploymentOutputLongRunningOperation, CliCommandType
 
-from azext_shipwright.validators import azl_process_vm_create_namespace
+from azext_shipwright.validators import azl_process_vm_create_namespace, azl_process_vmss_create_namespace
 from azext_aks_preview.commands import transform_mc_objects_with_custom_cas
 
+from azure.cli.command_modules.vm._validators import process_vm_create_namespace, process_vmss_create_namespace
 
 def load_command_table(self, _):
 
@@ -57,7 +58,7 @@ def load_command_table(self, _):
             transform=DeploymentOutputLongRunningOperation(self.cli_ctx, 'Starting vmss create'), 
             supports_no_wait=True, 
             table_transformer=deployment_validate_table_format, 
-            validator=azl_process_vm_create_namespace, 
+            validator=process_vmss_create_namespace, 
             exception_handler=handle_template_based_exception)
 
     with self.command_group(
