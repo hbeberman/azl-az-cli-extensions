@@ -25,6 +25,7 @@ class GlobalVariables:
         self.loading = True
         self.first_message = True
         self.startup_sink = True
+        self.sinkcount = 0
         self.lastmsg = 0
         self.websocketstate = 0
         self.sendcount = 0
@@ -56,7 +57,6 @@ class SerialTunnel:
 
         th = threading.Thread(target=self.local_server, args=())
         th.start()
-        time.sleep(5)
 
     def local_server(_):
         # create a socket in /tmp/serialtunnel.sock, if it already exists, remove it first
@@ -69,6 +69,7 @@ class SerialTunnel:
         try:
             GV.localsocket_instance = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             GV.localsocket_instance.bind(socket_path)
+            print(f"Created {socket_path} and listening")
             #GV.localsocket_instance.settimeout(10)
         except:  # pylint: disable=bare-except
             print("Failed to create local socket...")
@@ -76,7 +77,6 @@ class SerialTunnel:
         
         GV.localsocket_instance.listen(1)
 
-        print("Waiting for connection from unix socket...")
         while True:
             try:
                 GV.localsocket_connection, _ = GV.localsocket_instance.accept()
@@ -85,7 +85,7 @@ class SerialTunnel:
                 pass
 
     def load_websocket_url(self):
-        print("Loading websocket URL...")
+        print("Acquiring websocket URL")
         token_info, _, _ = Profile().get_raw_token()
         self.access_token = token_info[1]
         try:
@@ -107,23 +107,23 @@ class SerialTunnel:
             GV.recvcount += 1
             if GV.first_message:
                 if self.new_auth_flow == "1":
-                    print("Sending Auth Flow on message!")
                     GV.websocket_instance.send(self.access_token)
+                    print("Auth sent to Azure websocket")
                 GV.first_message = False
                 GV.loading = False
                 return
             elif GV.startup_sink:
                 cur = time.time()
-                if GV.lastmsg == 0 or (cur - GV.lastmsg < 0.001):
-                    print(f"Sinking Startup Message #{str(GV.recvcount)} Waited {str(cur - GV.lastmsg)} seconds since previous message ...")
+                if GV.lastmsg == 0 or (cur - GV.lastmsg < 0.01):
+                    #print(f"Sinking Startup Message #{str(GV.recvcount)} Waited {str(cur - GV.lastmsg)} seconds since previous message ...")
                     GV.lastmsg = cur
+                    GV.sinkcount += 1
                     return
                 else:
                     GV.startup_sink = False
-                    print("Startup Sink Finalized...")
-            print(f"==================== RECV # {str(GV.recvcount)} ====================")
+                    #print("Startup sink finalized. Sank {str(GV.sinkcount)} messages ...")
+            print(f"==================== RECV #{str(GV.recvcount)} ({str(len(message))} bytes) ====================")
             print(message)
-            print("=================================================================")
             GV.localsocket_connection.sendall(message.encode())
 
         def on_error(*_):
@@ -146,7 +146,7 @@ class SerialTunnel:
                 print("Could not establish connection to VM or VMSS ☹")
 
         def recv_local():
-            print("Entering recv local loop...")
+            #print("Entering recv local loop...")
             while True:
                 try:
                     data = GV.localsocket_connection.recv(8000)
@@ -178,9 +178,8 @@ class SerialTunnel:
                 print("Sending first message access token")
                 GV.websocket_instance.send(self.access_token)
                 GV.first_message = False
-            print(f"==================== SEND # {str(GV.sendcount)} ====================")
+            print(f"==================== SEND #{str(GV.sendcount)} ({str(len(message))} bytes) ====================")
             print(message)
-            print("=================================================================")
             GV.websocket_instance.send(message)
         else:
             print("No websocket connection established")
@@ -210,7 +209,6 @@ class SerialTunnel:
             seconds += 10
 
 def connect_serialtunnel(cmd, resource_group_name, vm_vmss_name, vmss_instanceid=None):
-    print("Connecting to serial tunnel...")
     GV.serial_tunnel_instance = SerialTunnel(cmd, resource_group_name, vm_vmss_name, vmss_instanceid)
     GV.serial_tunnel_instance.connect()
 
