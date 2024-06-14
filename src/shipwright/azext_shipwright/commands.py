@@ -53,5 +53,5 @@ def load_command_table(self, _):
         g.custom_command(
             "create",
             "aks_create",
-            supports_no_wait=True,
+            supports_no_wait=False,
         )
