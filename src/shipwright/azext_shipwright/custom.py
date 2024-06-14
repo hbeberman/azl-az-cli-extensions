@@ -4,7 +4,7 @@
 # --------------------------------------------------------------------------------------------
 
 from time import sleep
-from azure.cli.command_modules.vm.custom import create_vm
+from azure.cli.command_modules.vm.custom import create_vm, create_vmss
 import azure.cli.command_modules.vm.custom
 import functools
 from knack.log import get_logger
