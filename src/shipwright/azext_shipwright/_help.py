@@ -33,5 +33,5 @@ helps['shipwright create-vm'] = """
 
 # Update help for the shipwright commands to use the same help as the underlying command
 helps['shipwright vm create'] = vm_helps['vm create'].replace('az vm', 'az shipwright vm')
-
+helps['shipwright vmss create'] = vm_helps['vmss create'].replace('az vmss', 'az shipwright vmss')
 helps['shipwright aks create'] = aks_preview_helps['aks create'].replace('az aks', 'az shipwright aks')

@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 
-from azure.cli.command_modules.vm.custom import create_vm
+from azure.cli.command_modules.vm.custom import create_vm, create_vmss
 import azure.cli.command_modules.vm.custom
 import functools
 from knack.log import get_logger
