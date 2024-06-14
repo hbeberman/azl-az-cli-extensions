@@ -46,14 +46,6 @@ def load_command_table(self, _):
         client_factory=cf_managed_clusters,
     )
 
-    with self.command_group("shipwright") as g:
-        g.custom_command("echo", "echo_shipwright")
-        g.custom_command(
-            "get-build-status",
-            "get_build_status_shipwright",
-            table_transformer=build_commands.transform_get_build_status_output,
-        )
-
     with self.command_group("shipwright vm", compute_vm_sdk) as g:
         g.custom_command(
             "create",
@@ -92,7 +84,7 @@ def load_command_table(self, _):
             "create",
             "aks_create",
             supports_no_wait=False,
-            validator=azl_process_aks_create_namespace,
+            # validator=azl_process_aks_create_namespace,
         )
 
     with self.command_group(
