@@ -29,6 +29,7 @@ def load_command_table(self, _):
     with self.command_group('shipwright') as g:
         g.custom_command('echo', 'echo_shipwright')
 
+    # Maybe A quick cmd for set a S360 VM 
     with self.command_group('shipwright') as c:
         c.custom_command('create-vm', 'create_vm_shipwright')
 
