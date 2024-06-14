@@ -12,7 +12,7 @@ from azure.cli.core.commands.arm import (
 from azext_aks_preview._client_factory import cf_managed_clusters
 from azure.cli.core.commands import DeploymentOutputLongRunningOperation, CliCommandType
 
-from azext_shipwright.validators import azl_process_vm_create_namespace
+from azext_shipwright.validators import azl_process_vm_create_namespace, azl_process_aks_create_namespace
 from azext_aks_preview.commands import transform_mc_objects_with_custom_cas
 
 
@@ -52,12 +52,12 @@ def load_command_table(self, _):
 
     with self.command_group('shipwright vmss', compute_vmss_sdk, operation_group='virtual_machine_scale_sets') as g:
         g.custom_command(
-            'create', 
-            'create_vmss', 
-            transform=DeploymentOutputLongRunningOperation(self.cli_ctx, 'Starting vmss create'), 
-            supports_no_wait=True, 
-            table_transformer=deployment_validate_table_format, 
-            validator=azl_process_vm_create_namespace, 
+            'create',
+            'create_vmss',
+            transform=DeploymentOutputLongRunningOperation(self.cli_ctx, 'Starting vmss create'),
+            supports_no_wait=True,
+            table_transformer=deployment_validate_table_format,
+            validator=azl_process_vm_create_namespace,
             exception_handler=handle_template_based_exception)
 
     with self.command_group(
@@ -70,4 +70,5 @@ def load_command_table(self, _):
             "create",
             "aks_create",
             supports_no_wait=False,
+            validator=azl_process_aks_create_namespace,
         )
